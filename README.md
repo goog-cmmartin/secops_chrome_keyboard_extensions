@@ -2,6 +2,14 @@
 
 An unofficial Chrome Extension that provides keyboard shortcuts, an interactive Command Launcher palette, Turbo Performance rendering optimizations, Monaco editor tuning, and Markdown rendering support for Google SecOps.
 
+![Google SecOps Keyboard Extensions Screenshot](screenshot.png)
+
+> [!CAUTION]
+> **Disclaimer & Word of Caution**:
+> This is an **unofficial** open-source project and is **not** an officially supported Google or Google Cloud product.
+> This software is provided "as is", without warranty of any kind. You use this extension at your own risk.
+> Before loading or sideloading unpacked browser extensions, please verify that you are permitted to do so under your organization's internal IT, information security, and corporate software installation policies.
+
 ## Overview
 
 This extension is designed for SecOps power users, SOC analysts, and detection engineers. It injects into Google SecOps to provide instant client-side SPA navigation, quick keyboard shortcuts, a Spotlight/Raycast-style Command Launcher, Turbo rendering performance containment, automatic Markdown rendering for Gemini Summaries and SOAR Case Wall comments, and Monaco Editor typeahead suppression for lag-free query editing.
