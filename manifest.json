@@ -1,21 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "Google SecOps Keyboard Extensions",
-  "version": "0.008",
+  "name": "Google SecOps Keyboard Extensions & Command Launcher",
+  "version": "0.23.0",
+  "permissions": [
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
-  },  
-  "description": "Provides keyboard support for Google SecOps",
-  "permissions": [
-    "activeTab",
-    "scripting"
-  ],  
-  "background": {
-    "service_worker": "background.js"
-  },  
+  },
+  "description": "Provides keyboard shortcuts, interactive command launcher, tab switcher, Turbo performance mode, Markdown rendering, and UI enhancements for Google SecOps",
   "content_scripts": [
+    {
+      "matches": ["*://*.backstory.chronicle.security/*"],
+      "js": ["monaco_bridge.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
     {
       "matches": ["*://*.backstory.chronicle.security/*"],
       "js": ["content.js"]
@@ -23,8 +28,8 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["modal.html", "styles.css", "icon48.png"],
+      "resources": ["modal.html", "styles.css", "icon48.png", "monaco_bridge.js"],
       "matches": ["*://*.backstory.chronicle.security/*"]
     }
-  ]  
+  ]
 }

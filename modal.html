@@ -2,15 +2,37 @@
 <div id="shortcutModal">
     <div id="modalHeader">
         <img id="modalIcon" src="" alt="SecOps Icon">
-        <h2>SecOps Keyboard Shortcuts</h2>
-        <button id="closeModalButton">&times;</button>
+        <h2>SecOps Command Palette & Shortcuts</h2>
+        <button id="closeModalButton" aria-label="Close shortcuts modal">&times;</button>
     </div>
     <hr>
-    <input type="text" id="shortcutSearchInput" placeholder="🔍 Search shortcuts...">
-    <ul></ul>
+    <div id="searchContainer">
+        <input type="text" id="shortcutSearchInput" placeholder="🔍 Type a command, page ('/'), tab ('@'), or action ('>')..." autocomplete="off" spellcheck="false">
+        <div id="searchKeyHints">
+            <span class="hint-item"><kbd>↑</kbd><kbd>↓</kbd> / <kbd>^N</kbd><kbd>^P</kbd> navigate</span>
+            <span class="hint-item"><kbd>↵</kbd> open</span>
+            <span class="hint-item"><kbd>⇧↵</kbd> new tab</span>
+            <span class="hint-item"><kbd>@</kbd> tabs</span>
+            <span class="hint-item"><kbd>/</kbd> pages</span>
+            <span class="hint-item"><kbd>&gt;</kbd> actions</span>
+            <span class="hint-item"><kbd>esc</kbd> close</span>
+        </div>
+    </div>
+
+    <div id="shortcutList"></div>
+
     <div id="modalFooter">
-        <p><b>About</b>: This Chrome Extension provides keyboard shortcuts within the Google SecOps user interface by simulating click functions within the user interface by injecting click events for the appropriate Document Object Model (DOM) elements.  Because this relies on the internal structure of the SecOps interface and is not an official integration, future updates by Google to the underlying code may cause this extension to stop working without notice.</p>
-        <p><b>Disclaimer</b>: This is not an official Google Cloud extension for Google SecOps, and been tested primarily using Google Chrome on Linux, for an en-US keyboard, with the integrated Google SecOps platform. It has not been tested against standalone Chronicle SIEM, Chronicle SOAR, or Security Command Center Enterprise (SCCE), and compatibility is not guaranteed.</p>
-        <p id="modalVersion"></p> </div>
+        <div id="footerStatusPills">
+            <button id="turboStatusPill" class="status-pill status-pill--on" title="Click or press Alt+Shift+P to toggle Turbo Mode">
+                <span class="pill-dot"></span> 🚀 Turbo: <b id="turboPillText">ON</b>
+                <span class="pill-hotkey">Alt+Shift+P</span>
+            </button>
+            <button id="monacoStatusPill" class="status-pill status-pill--off" title="Click or press Alt+Shift+T to toggle Monaco Typeahead">
+                <span class="pill-dot"></span> ⚡ Monaco Typeahead: <b id="monacoPillText">OFF</b>
+                <span class="pill-hotkey">Alt+Shift+T</span>
+            </button>
+            <span id="modalVersion" class="version-pill"></span>
+        </div>
+        <p class="footer-note"><b>SecOps Command Palette</b> • Use keyboard shortcuts for instant SPA navigation and tab switching.</p>
     </div>
 </div>
