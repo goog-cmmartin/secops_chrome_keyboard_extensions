@@ -32,10 +32,16 @@ function formatKey(code) {
  * Fast traversal of light DOM and open Shadow DOM boundaries to find an element.
  */
 function queryDeep(selector, root = document) {
+  if (!root) return null;
   try {
     const el = root.querySelector(selector);
     if (el) return el;
   } catch (e) {}
+
+  if (root.shadowRoot) {
+    const found = queryDeep(selector, root.shadowRoot);
+    if (found) return found;
+  }
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
   let node = walker.nextNode();
@@ -53,10 +59,15 @@ function queryDeep(selector, root = document) {
  * Fast traversal of light DOM and open Shadow DOM boundaries to find all matching elements.
  */
 function queryDeepAll(selector, root = document) {
+  if (!root) return [];
   let results = [];
   try {
     results = Array.from(root.querySelectorAll(selector));
   } catch (e) {}
+
+  if (root.shadowRoot) {
+    results = results.concat(queryDeepAll(selector, root.shadowRoot));
+  }
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
   let node = walker.nextNode();
@@ -674,9 +685,11 @@ const commandCatalog = [
     shortcut: "KeyA",
     keywords: ["aggregations", "stats", "count", "grouped fields", "summary"],
     action: () => {
-      const container = queryDeepAll('mc-widget-container').find(c => c.innerText?.includes('AGGREGATIONS') || c.id === 'fields-aggregations');
-      const toggleBtn = container?.shadowRoot?.querySelector('#toggle') || queryDeep('#fields-aggregations #toggle');
-      toggleBtn?.click();
+      const aggr = queryDeep('mc-fields-aggregations, #fields-aggregations, [id*="aggregations"]') ||
+                   queryDeepAll('mc-widget-container').find(c => c.innerText?.includes('AGGREGATIONS'));
+      const toggleBtn = aggr ? (queryDeep('#toggle, mc-button#toggle, button[aria-label*="xpand" i], button[aria-label*="ollapse" i]', aggr) || queryDeep('#toggle', aggr.shadowRoot)) : null;
+      const clickTarget = toggleBtn?.shadowRoot?.querySelector('button') || toggleBtn;
+      clickTarget?.click();
     }
   },
   {
@@ -687,9 +700,10 @@ const commandCatalog = [
     shortcut: "KeyM",
     keywords: ["heatmap", "trend", "activity", "prevalence", "timeline", "chart"],
     action: () => {
-      const chartContainer = queryDeep('#event-count-chart') || queryDeep('sc-timeline-chart#detection-chart');
-      const toggleBtn = chartContainer?.shadowRoot?.querySelector('#toggle') || chartContainer?.querySelector('button.collapsing-icon') || queryDeep('#event-count-chart #toggle');
-      toggleBtn?.click();
+      const chartContainer = queryDeep('#event-count-chart, sc-timeline-chart#detection-chart, [id*="event-count-chart"]');
+      const toggleBtn = chartContainer ? (queryDeep('#toggle, button.collapsing-icon, button[aria-label*="ollapse" i], button[aria-label*="xpand" i]', chartContainer) || queryDeep('#toggle', chartContainer.shadowRoot)) : null;
+      const clickTarget = toggleBtn?.shadowRoot?.querySelector('button') || toggleBtn;
+      clickTarget?.click();
     }
   },
   {
@@ -765,7 +779,7 @@ function insertModal() {
           const manifest = chrome.runtime.getManifest();
           versionElement.innerHTML = `<b>Version</b>: ${manifest.version}`;
         } catch (e) {
-          versionElement.innerHTML = `<b>Version</b>: 0.23.0`;
+          versionElement.innerHTML = `<b>Version</b>: 0.23.1`;
         }
       }
 
