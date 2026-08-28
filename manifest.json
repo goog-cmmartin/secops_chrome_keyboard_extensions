@@ -13,7 +13,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "description": "Provides keyboard shortcuts, interactive command launcher, tab switcher, Turbo performance mode, Markdown rendering, and UI enhancements for Google SecOps",
+  "description": "Provides keyboard shortcuts, interactive command launcher, and tab switcher for Google SecOps",
   "content_scripts": [
     {
       "matches": ["*://*.backstory.chronicle.security/*"],
