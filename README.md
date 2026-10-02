@@ -54,7 +54,8 @@ This extension is designed for SecOps power users, SOC analysts, and detection e
   - **Instant Client-Side SPA Transitions**: Switches routes in milliseconds without hard page reloads.
 - **Direct Keyboard Shortcuts**: Rich set of chorded `Alt+Shift+<Key>` and `Ctrl+Shift+<Key>` combinations.
 - **Adaptive Dark & Light Theme**: Seamlessly adapts to Google SecOps's native light and dark modes via CSS custom properties.
-- **Header Integration**: Adds a shortcut launcher button directly in the main SecOps navigation header.
+- **Live Local & UTC Header Clock**: Displays a single inline monospace pill in the top SecOps navigation bar showing live Local time (with detected timezone abbreviation) and UTC time side-by-side (`Local HH:mm:ss TZ • UTC HH:mm:ss`), with full date context on hover and zero background CPU usage.
+- **Header Integration**: Adds the live clock pill and a shortcut launcher button directly in the main SecOps navigation header.
 
 ## How to Use
 

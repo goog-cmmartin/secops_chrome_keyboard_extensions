@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Google SecOps Keyboard Extensions & Command Launcher",
-  "version": "0.23.1",
+  "version": "0.24.0",
   "permissions": [
     "tabs"
   ],

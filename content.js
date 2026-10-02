@@ -4,6 +4,8 @@ let toastTimeout;
 let activeCommandElements = [];
 let selectedCommandIndex = 0;
 let headerButton = null;
+let headerClock = null;
+let clockInterval = null;
 let searchInputRaf = null;
 const STORAGE_TYPEAHEAD_KEY = 'secops_ext_monaco_typeahead';
 const STORAGE_TURBO_KEY = 'secops_ext_turbo_mode';
@@ -779,7 +781,7 @@ function insertModal() {
           const manifest = chrome.runtime.getManifest();
           versionElement.innerHTML = `<b>Version</b>: ${manifest.version}`;
         } catch (e) {
-          versionElement.innerHTML = `<b>Version</b>: 0.23.1`;
+          versionElement.innerHTML = `<b>Version</b>: 0.24.0`;
         }
       }
 
@@ -1255,53 +1257,130 @@ window.addEventListener("keydown", function (event) {
 }, true);
 
 /**
- * Ensures header shortcuts button is attached efficiently without continuous DOM queries.
+ * Updates the header clock widget with current Local and UTC times.
  */
-function ensureHeaderButton() {
-  if (!isContextValid()) return;
-  if (headerButton && headerButton.isConnected) {
-    return;
+function updateClockDisplay() {
+  if (!headerClock || !headerClock.isConnected) return;
+  const now = new Date();
+
+  const localHrs = String(now.getHours()).padStart(2, '0');
+  const localMins = String(now.getMinutes()).padStart(2, '0');
+  const localSecs = String(now.getSeconds()).padStart(2, '0');
+
+  let tzAbbr = '';
+  try {
+    const parts = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(now);
+    const tzPart = parts.find(p => p.type === 'timeZoneName');
+    if (tzPart && tzPart.value) {
+      tzAbbr = ` ${tzPart.value}`;
+    }
+  } catch (e) {}
+
+  const utcHrs = String(now.getUTCHours()).padStart(2, '0');
+  const utcMins = String(now.getUTCMinutes()).padStart(2, '0');
+  const utcSecs = String(now.getUTCSeconds()).padStart(2, '0');
+
+  const localVal = headerClock.querySelector('.secops-clock-local-val');
+  const utcVal = headerClock.querySelector('.secops-clock-utc-val');
+
+  if (localVal) localVal.textContent = `${localHrs}:${localMins}:${localSecs}${tzAbbr}`;
+  if (utcVal) utcVal.textContent = `${utcHrs}:${utcMins}:${utcSecs}`;
+
+  headerClock.title = `Local Time: ${now.toLocaleDateString()} ${localHrs}:${localMins}:${localSecs}${tzAbbr}\nUTC Time: ${now.toISOString().replace('T', ' ').slice(0, 19)} UTC`;
+}
+
+function startClockTimer() {
+  if (clockInterval) return;
+  updateClockDisplay();
+  clockInterval = setInterval(() => {
+    if (document.hidden) return; // Save CPU when tab is in background
+    updateClockDisplay();
+  }, 1000);
+}
+
+// When tab visibility changes, update immediately if visible
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    updateClockDisplay();
   }
+});
+
+/**
+ * Ensures header clock and shortcuts button are attached efficiently without continuous DOM queries.
+ */
+function ensureHeaderElements() {
+  if (!isContextValid()) return;
 
   const headerActionsContainer = document.querySelector('sc-navigation-header-actions');
   const userProfileButton = document.querySelector('#user-actions') || 
                             headerActionsContainer?.querySelector('sc-user-profile')?.parentElement;
 
   if (headerActionsContainer && userProfileButton) {
-    const existing = headerActionsContainer.querySelector('.secops-shortcuts-header-button');
-    if (existing) {
-      headerButton = existing;
-      return;
+    // 1. Clock Widget (Local + UTC)
+    if (!headerClock || !headerClock.isConnected) {
+      const existingClock = headerActionsContainer.querySelector('.secops-header-clock');
+      if (existingClock) {
+        headerClock = existingClock;
+      } else {
+        const clockEl = document.createElement('div');
+        clockEl.className = 'secops-header-clock';
+        clockEl.innerHTML = `
+          <span class="secops-clock-item secops-clock-local">
+            <span class="secops-clock-label">Local</span>
+            <span class="secops-clock-val secops-clock-local-val">--:--:--</span>
+          </span>
+          <span class="secops-clock-sep">•</span>
+          <span class="secops-clock-item secops-clock-utc">
+            <span class="secops-clock-label">UTC</span>
+            <span class="secops-clock-val secops-clock-utc-val">--:--:--</span>
+          </span>
+        `;
+        headerActionsContainer.insertBefore(clockEl, userProfileButton);
+        headerClock = clockEl;
+        startClockTimer();
+      }
     }
 
-    const myButton = document.createElement('button');
-    myButton.setAttribute('role', 'button');
-    myButton.className = 'secops-shortcuts-header-button smp-transition';
-    myButton.setAttribute('aria-label', 'Open SecOps Command Palette & Shortcuts');
-    myButton.title = 'Open SecOps Command Palette (Alt+Shift+?)';
+    // 2. Shortcuts Header Button
+    if (!headerButton || !headerButton.isConnected) {
+      const existingBtn = headerActionsContainer.querySelector('.secops-shortcuts-header-button');
+      if (existingBtn) {
+        headerButton = existingBtn;
+      } else {
+        const myButton = document.createElement('button');
+        myButton.setAttribute('role', 'button');
+        myButton.className = 'secops-shortcuts-header-button smp-transition';
+        myButton.setAttribute('aria-label', 'Open SecOps Command Palette & Shortcuts');
+        myButton.title = 'Open SecOps Command Palette (Alt+Shift+?)';
 
-    const iconImage = document.createElement('img');
-    iconImage.src = isContextValid() ? chrome.runtime.getURL('icon48.png') : '';
-    iconImage.alt = 'SecOps Command Palette';
-    iconImage.style.width = '24px';
-    iconImage.style.height = '24px';
-    iconImage.style.verticalAlign = 'middle';
+        const iconImage = document.createElement('img');
+        iconImage.src = isContextValid() ? chrome.runtime.getURL('icon48.png') : '';
+        iconImage.alt = 'SecOps Command Palette';
+        iconImage.style.width = '24px';
+        iconImage.style.height = '24px';
+        iconImage.style.verticalAlign = 'middle';
 
-    myButton.appendChild(iconImage);
-    myButton.style.backgroundColor = 'transparent';
-    myButton.style.border = 'none';
-    myButton.style.cursor = 'pointer';
-    myButton.style.padding = '8px';
-    myButton.style.borderRadius = '50%';
-    myButton.style.display = 'inline-flex';
-    myButton.style.alignItems = 'center';
-    myButton.style.justifyContent = 'center';
+        myButton.appendChild(iconImage);
+        myButton.style.backgroundColor = 'transparent';
+        myButton.style.border = 'none';
+        myButton.style.cursor = 'pointer';
+        myButton.style.padding = '8px';
+        myButton.style.borderRadius = '50%';
+        myButton.style.display = 'inline-flex';
+        myButton.style.alignItems = 'center';
+        myButton.style.justifyContent = 'center';
 
-    myButton.addEventListener('click', openModal);
+        myButton.addEventListener('click', openModal);
 
-    headerActionsContainer.insertBefore(myButton, userProfileButton);
-    headerButton = myButton;
+        headerActionsContainer.insertBefore(myButton, userProfileButton);
+        headerButton = myButton;
+      }
+    }
   }
+}
+
+function ensureHeaderButton() {
+  ensureHeaderElements();
 }
 
 // Unified debounced mutation runner
@@ -1312,7 +1391,7 @@ function scheduleMutationPass() {
   mutationScheduled = true;
   requestAnimationFrame(() => {
     if (!isContextValid()) return;
-    ensureHeaderButton();
+    ensureHeaderElements();
     renderMarkdownInPage(document);
     mutationScheduled = false;
   });
@@ -1327,7 +1406,7 @@ const appObserver = new MutationObserver((mutations) => {
 
   let hasRelevantMutation = false;
   
-  if (!headerButton || !headerButton.isConnected) {
+  if (!headerButton || !headerButton.isConnected || !headerClock || !headerClock.isConnected) {
     hasRelevantMutation = true;
   }
 

@@ -668,3 +668,58 @@ comment-activity strong {
     color: var(--secops-ext-strong-color);
     font-weight: 600;
 }
+
+/* ==========================================================================
+   Header Clock Widget (Local + UTC)
+   ========================================================================== */
+.secops-header-clock {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    margin-right: 6px;
+    background-color: var(--secops-ext-badge-bg, rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--secops-ext-badge-border, rgba(255, 255, 255, 0.12));
+    border-radius: 14px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--secops-ext-item-title, #e5e5e6);
+    user-select: none;
+    white-space: nowrap;
+    line-height: 1.4;
+    vertical-align: middle;
+    cursor: default;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.secops-header-clock:hover {
+    background-color: var(--secops-ext-item-hover, rgba(255, 255, 255, 0.12));
+}
+
+.secops-header-clock .secops-clock-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.secops-header-clock .secops-clock-label {
+    color: var(--secops-ext-item-desc, #828997);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.secops-header-clock .secops-clock-val {
+    color: var(--secops-ext-modal-header-color, #ffffff);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.secops-header-clock .secops-clock-sep {
+    color: var(--secops-ext-item-desc, #828997);
+    opacity: 0.6;
+    margin: 0 1px;
+    font-size: 10px;
+}
